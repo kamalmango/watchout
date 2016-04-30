@@ -54,7 +54,7 @@ var updateAsteroids = function(data) {
       .attr('class', 'asteroid')
       .attr('cx', function(d) { return d.x; })
       .attr('cy', function(d) { return d.y; })
-      .attr('r', '50') //TODO create variating sizes
+      .attr('r', '30') //TODO create variating sizes
       .style('fill', 'purple');
 };
 
@@ -81,9 +81,9 @@ var updatePlayer = function(data) {
     .enter()
       .append('circle')
         .attr('class', 'player')
-        .attr('cx', '50%')
-        .attr('cy', '50%')
-        .attr('r', '25')
+        .attr('cx', '400')
+        .attr('cy', '400')
+        .attr('r', '15')
         .style('fill', 'orange')
         .call(drag);
 
@@ -95,10 +95,38 @@ var updatePlayer = function(data) {
   // });
 };
 
+var detectCollision = function(node1, node2) {
+  var x1 = Number(node1.attr('cx'));
+  var y1 = Number(node1.attr('cy'));
+  var x2 = Number(node2.attr('cx'));
+  var y2 = Number(node2.attr('cy'));
+ 
+  var distance = Math.sqrt ( Math.pow( x2 - x1, 2 ) 
+    + Math.pow( y2 - y1, 2 ) );
+  
+  return distance < 22.5;
+};
+
+//d3.select(node1).attr('cx')
+
+var detectPlayerCollision = function() {
+  var asteroids = d3.select('svg').selectAll('circle.asteroid');
+  var player = d3.select('svg').selectAll('circle.player');
+
+  //check distance between player and each asteroid
+  for (var i = 0; i < asteroids[0].length; i++) {
+    if ( detectCollision( d3.select(asteroids[0][i]), player ) ) {
+      player.style('fill', 'green');
+    }
+  }
+
+};
+
 
 
 setInterval(function() { updateAsteroids(genRandPos(10)); }, 1000);
 setInterval(function() { updatePlayer([{x: 1, y: 1}]); }, 10 );
+setInterval(function() { detectPlayerCollision(); }, 10);
 
 //[{x: 100 y: 100}, {x: 100 y: 100} ]
 
