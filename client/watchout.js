@@ -1,6 +1,7 @@
 // start slingin' some d3 here.
 // var asteroids = [];
 
+
 var svg = d3.select('body').append('svg')
   .attr('width', '100%')
   .attr('height', '800');
@@ -34,28 +35,70 @@ var genRandPos = function(num) {
   return positions;
 };
 
-var update = function(data) {
-  var asteroids = d3.select('svg').selectAll('circle');
+var updateAsteroids = function(data) {
+  var asteroids = d3.select('svg').selectAll('circle.asteroid');
   // var asteroidPos = asteroids.data(data, function(d) { return d; });
   //update existing nodes with their mapped data
 
-  asteroids.data(data, function (d) { return d; })
+  asteroids.data(data)
     .transition()
-    .attr('cx', getRandNum(1, 700))
-    .attr('cy', getRandNum(1, 700))
+    .attr('cx', function(d) { return d.x; })
+    .attr('cy', function(d) { return d.y; })
     .duration(1000);
   
   //create new asteroids
   asteroids.data(data)
    .enter()
      .append('circle')
-       .attr('cx', function(d) { return d.x; })
-       .attr('cy', function(d) { return d.y; })
-       .attr('r', 50) //TODO create variating sizes
-       .style('fill', 'purple');
+     //add asteroid class
+      .attr('class', 'asteroid')
+      .attr('cx', function(d) { return d.x; })
+      .attr('cy', function(d) { return d.y; })
+      .attr('r', '50') //TODO create variating sizes
+      .style('fill', 'purple');
 };
 
-setInterval(function() { update(genRandPos(10)); }, 1000);
+//var player = d3.select('svg').selectAll('circle.player');
+var dragmove = function(d) {
+  var x = d3.event.x;
+  var y = d3.event.y;
+  d3.select(this)
+    .transition()
+    .attr('cx', x)
+    .attr('cy', y)
+    .duration(0);
+};
+
+var drag = d3.behavior.drag()
+  .on('drag', dragmove);
+
+var updatePlayer = function(data) {
+
+  var player = d3.select('svg').selectAll('circle.player');
+
+  //create new player
+  player.data(data)
+    .enter()
+      .append('circle')
+        .attr('class', 'player')
+        .attr('cx', '50%')
+        .attr('cy', '50%')
+        .attr('r', '25')
+        .style('fill', 'orange')
+        .call(drag);
+
+  // svg.on('click', function(d) {
+  //   var drag = d3.behavior.drag();
+  //   player.call(drag);
+
+  //   console.log('clicked');
+  // });
+};
+
+
+
+setInterval(function() { updateAsteroids(genRandPos(10)); }, 1000);
+setInterval(function() { updatePlayer([{x: 1, y: 1}]); }, 10 );
 
 //[{x: 100 y: 100}, {x: 100 y: 100} ]
 
