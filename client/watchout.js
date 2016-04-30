@@ -1,10 +1,29 @@
 // start slingin' some d3 here.
 // var asteroids = [];
+var scores = {
+  high: 0,
+  current: 0,
+  collisions: 0
+};
 
 
 var svg = d3.select('body').append('svg')
   .attr('width', '100%')
   .attr('height', '800');
+
+var throttle = function(func, wait) {
+  var throttled = false;
+  return function() {
+    var args = Array.prototype.slice.call(arguments).slice(2);
+    if (!throttled) { 
+      func.apply(this, args);
+      throttled = true;
+      setTimeout(function() {
+        throttled = false;
+      }, wait);
+    }
+  };
+};
 
 var createCircle = function(d, id) {
   var r = d / 2;
@@ -95,6 +114,28 @@ var updatePlayer = function(data) {
   // });
 };
 
+var updateScore = function(data) {
+  // var highScore = d3.select('.highscore').select('span');
+  // var score = d3.select('.current').select('span');
+  // var collisions = d3.select('.collisions').select('span');
+  var scoreBoard = d3.select('.scoreboard').selectAll('span');
+
+  scoreBoard.data(data).text(function(d) { return d; });
+  // //update highScore
+  // highScore.data([]).text();
+  // // update score
+  // score.text('test');
+  // // update collisions
+  // collisions.text('test');
+};
+
+var incrementScore = throttle(function() {
+  scores.high = scores.current > scores.high ? scores.current : scores.high;
+  scores.collisions++;
+  scores.current = 0;
+  updateScore([scores.high, scores.current, scores.collisions]);
+}, 500);
+
 var detectCollision = function(node1, node2) {
   var x1 = Number(node1.attr('cx'));
   var y1 = Number(node1.attr('cy'));
@@ -107,6 +148,9 @@ var detectCollision = function(node1, node2) {
   return distance < 22.5;
 };
 
+
+var test = throttle(updateScore, 100);
+
 //d3.select(node1).attr('cx')
 
 var detectPlayerCollision = function() {
@@ -117,6 +161,11 @@ var detectPlayerCollision = function() {
   for (var i = 0; i < asteroids[0].length; i++) {
     if ( detectCollision( d3.select(asteroids[0][i]), player ) ) {
       player.style('fill', 'green');
+      incrementScore();
+      // scores.high = scores.current > scores.high ? scores.current : scores.high;
+      // scores.collisions++;
+      // scores.current = 0;
+      // updateScore([scores.high, scores.current, scores.collisions]);
     }
   }
 
@@ -124,9 +173,16 @@ var detectPlayerCollision = function() {
 
 
 
+
+
+
 setInterval(function() { updateAsteroids(genRandPos(10)); }, 1000);
 setInterval(function() { updatePlayer([{x: 1, y: 1}]); }, 10 );
+setInterval(function() { scores.current++; }, 1000);
+setInterval(function() { updateScore([scores.high, scores.current, scores.collisions]); }, 1000);
 setInterval(function() { detectPlayerCollision(); }, 10);
+
+
 
 //[{x: 100 y: 100}, {x: 100 y: 100} ]
 
