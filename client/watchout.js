@@ -25,26 +25,10 @@ var throttle = function(func, wait) {
   };
 };
 
-var createCircle = function(d, id) {
-  var r = d / 2;
-
-  svg.append('circle')
-    .attr('class', id)
-    .attr('cx', getRandNum(1, 800))
-    .attr('cy', getRandNum(1, 800))
-    .attr('r', r)
-    .style('fill', 'purple');
-};
-
 var getRandNum = function(min, max) {
   return Math.random() * (max - min) + min;
 };
 
-// var moveAsteroids = function() {
-//   asteroids.transition()
-//     .attr('cx', getRandNum(1, 800)).attr('cy', getRandNum(1, 800))
-//     .duration(1000);
-// };
 
 var genRandPos = function(num) {
   var positions = [];
@@ -55,26 +39,31 @@ var genRandPos = function(num) {
 };
 
 var updateAsteroids = function(data) {
-  var asteroids = d3.select('svg').selectAll('circle.asteroid');
+  var asteroids = d3.select('svg').selectAll('.asteroid');
   // var asteroidPos = asteroids.data(data, function(d) { return d; });
   //update existing nodes with their mapped data
 
   asteroids.data(data)
     .transition()
-    .attr('cx', function(d) { return d.x; })
-    .attr('cy', function(d) { return d.y; })
+    .attr('x', function(d) { return d.x; })
+    .attr('y', function(d) { return d.y; })
     .duration(1000);
   
   //create new asteroids
   asteroids.data(data)
    .enter()
-     .append('circle')
+     //.append('circle')
+     .append('image')
      //add asteroid class
       .attr('class', 'asteroid')
-      .attr('cx', function(d) { return d.x; })
-      .attr('cy', function(d) { return d.y; })
-      .attr('r', '30') //TODO create variating sizes
-      .style('fill', 'purple');
+      // .attr('cx', function(d) { return d.x; })
+      // .attr('cy', function(d) { return d.y; })
+      // .attr('r', '30') //TODO create variating sizes
+      .attr('xlink:href', 'asteroid.png')
+      .attr('width', 100)
+      .attr('height', 100)
+      .attr('x', function(d) { return d.x; })
+      .attr('y', function(d) { return d.y; });
 };
 
 //var player = d3.select('svg').selectAll('circle.player');
@@ -137,8 +126,8 @@ var incrementScore = throttle(function() {
 }, 500);
 
 var detectCollision = function(node1, node2) {
-  var x1 = Number(node1.attr('cx'));
-  var y1 = Number(node1.attr('cy'));
+  var x1 = Number(node1.attr('x'));
+  var y1 = Number(node1.attr('y'));
   var x2 = Number(node2.attr('cx'));
   var y2 = Number(node2.attr('cy'));
  
@@ -154,7 +143,7 @@ var test = throttle(updateScore, 100);
 //d3.select(node1).attr('cx')
 
 var detectPlayerCollision = function() {
-  var asteroids = d3.select('svg').selectAll('circle.asteroid');
+  var asteroids = d3.select('svg').selectAll('.asteroid');
   var player = d3.select('svg').selectAll('circle.player');
 
   //check distance between player and each asteroid
